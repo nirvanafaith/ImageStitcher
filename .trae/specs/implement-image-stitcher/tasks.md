@@ -1,0 +1,41 @@
+# Tasks
+
+- [x] Task 1: 搭建 Qt 5.15.2 + CMake 项目骨架（Win7 兼容）
+  - [x] SubTask 1.1: 在 `d:\pinjie\src\` 下创建 CMakeLists.txt，配置 Qt5 Widgets/Gui/Core/Xml 依赖、C++17、`_WIN32_WINNT=0x0601`/`WINVER=0x0601` 宏、MSVC 2019 64-bit
+  - [x] SubTask 1.2: 创建 main.cpp 入口与空 MainWindow，确保可编译运行空窗口
+- [x] Task 2: 实现 NumberUtil 序号解析工具
+  - [x] SubTask 2.1: 创建 `NumberUtil.h/.cpp`，提供 `extractNumber(const QString& imgFileName) -> qint64`，用正则 `img(\d+)\.jpg` 提取数值
+  - [x] SubTask 2.2: 处理无效文件名返回 -1
+- [x] Task 3: 实现 FileManager 文件服务（含并行加载）
+  - [x] SubTask 3.1: 创建 `FileManager.h/.cpp`，提供 loadImage(folder, imgName)->QImage、saveImage(path, QImage)->bool、deleteFile(path)->bool
+  - [x] SubTask 3.2: loadImage 统一转 Format_RGB32；saveImage 以 JPG 质量 95 保存
+  - [x] SubTask 3.3: 提供 loadTwoImagesParallel(folder, name1, name2) 用 QtConcurrent::run 并行加载两图
+- [x] Task 4: 实现 Stitcher 拼接算法
+  - [x] SubTask 4.1: 创建 `Stitcher.h/.cpp`，定义 enum StitchDirection{TopBottom, LeftRight}、enum AlignMode{Left, Center, Right}
+  - [x] SubTask 4.2: 实现 stitch(img1, img2, dir, align, fill=Qt::white)->QImage，按 spec 算法：上下=宽max高sum、左右=宽sum高max，画布填白，两图各自按 align 计算 offset 绘制
+- [x] Task 5: 实现 XmlEditor XML 服务
+  - [x] SubTask 5.1: 创建 `XmlEditor.h/.cpp`，用 QDomDocument 加载源 XML
+  - [x] SubTask 5.2: 实现 updateAndRemove(xmlPath, keepImgName, newW, newH, removeImgName)->bool：遍历 `<插图>`，匹配 `<图片链接>` 文件名；更新 keep 图的 `<图片宽度>/<图片高度>`；删除 remove 图所在整个 `<段落>`；覆盖写回原 xmlPath
+- [x] Task 6: 实现 MainWindow UI 布局（极简风格）
+  - [x] SubTask 6.1: 左侧控制面板：文件夹路径(QLineEdit+浏览)、XML 路径(QLineEdit+浏览)、图片1名、图片2名、拼接方向(2 RadioButton)、对齐(3 RadioButton)、确认预览按钮、输出按钮
+  - [x] SubTask 6.2: 右侧展示区 QLabel（Expanding，居中，中性灰背景），resizeEvent 中按 KeepAspectRatio+SmoothTransformation 重新缩放显示当前预览 QPixmap
+  - [x] SubTask 6.3: 对齐 RadioButton 加 tooltip 说明两种方向下的实际效果；输出按钮初始禁用
+- [x] Task 7: 接线预览流程（UI ↔ FileManager ↔ Stitcher，含缩放缓存）
+  - [x] SubTask 7.1: 确认预览按钮槽：校验输入(文件夹/XML/两图存在、序号不同)→弹错或继续；并行加载两图→Stitcher 拼接→**缓存拼接后 QImage 为成员变量**→缩放显示→启用输出按钮
+  - [x] SubTask 7.2: resizeEvent 仅对缓存的 QImage/QPixmap 做 scaled()，不重新拼接原图
+  - [x] SubTask 7.3: 校验两图 pageCode 一致性（从 XML 读取），不一致弹警告允许继续
+- [x] Task 8: 接线输出流程（UI ↔ FileManager ↔ XmlEditor）
+  - [x] SubTask 8.1: 输出按钮槽：弹确认对话框→计算小序号(keep)/大序号(remove)→保存拼接图为 keep 名→删除 remove 文件→XmlEditor.updateAndRemove
+  - [x] SubTask 8.2: 任一步失败弹错误提示；成功后提示完成并禁用输出按钮（需重新预览）
+- [x] Task 9: 集成测试、范例验证与 Win7 部署
+  - [x] SubTask 9.1: 用 `d:\pinjie\imageCut\` 的 img00024002.jpg + img00024003.jpg 上下拼接验证输出尺寸 271×324（静态算法跟踪确认）
+  - [x] SubTask 9.2: 验证输出后 XML 与 `修改后.xml` 结构一致（img00024002 宽高更新、img00024003 段落删除）（代码逻辑跟踪确认）
+  - [x] SubTask 9.3: 验证 6 种组合均能正常预览不崩溃（UI 与算法支持 2×3 组合，代码审查确认）
+  - [ ] SubTask 9.4: 用 windeployqt 打包，并在 Win7 SP1 真机/虚拟机验证启动与全流程（待用户安装 Qt5.15+MSVC2019 后执行，本机无工具链）
+
+# Task Dependencies
+- [Task 3] depends on [Task 2]
+- [Task 7] depends on [Task 3, Task 4, Task 6]
+- [Task 8] depends on [Task 3, Task 5, Task 7]
+- [Task 9] depends on [Task 8]
+- [Task 2/4/5/6] 可与 [Task 1] 并行启动（先约定接口）

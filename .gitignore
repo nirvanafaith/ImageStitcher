@@ -1,0 +1,15 @@
+# Qt 工具链和 MinGW 编译器（第三方，可重新安装）
+qt5.15.2/
+
+# CMake 构建产物
+src/build/
+
+# 安装日志
+aqtinstall.log
+
+# 压缩包
+图片拼接.7z
+
+# 临时文件
+*.tmp
+*.bak
